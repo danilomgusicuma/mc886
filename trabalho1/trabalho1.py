@@ -59,6 +59,11 @@ print("y_test.shape", y_test.shape)
 
 
 # TODO: Linear Regression. Implement your solution. You cannot use scikit-learn libraries.
+def random_array_from(x):
+    #start the coefficients list randomically
+    #generate an array with the same size of the dataset x
+    init_theta = np.random.randn(len(x),1)
+    return init_theta
 
 def h_theta(theta, lin_coeff, x):
     # x is a list of features
@@ -83,9 +88,24 @@ def derivatives( x, y, prediction):
 a = np.array([[1,2],[3,4],[5,6]])
 b = np.array([[1],[2],[3]])
 c = np.array([[1.1],[2.1],[3.1]])
-print("derivatives: ",cost(b, c))
 
+def batch_GD(x, y, nb_epochs, learning_rate):
+    theta = random_array_from(x)
+    lin_coeff = 0
+    for iteration in range(nb_epochs):
+        prediction = h_theta(theta, lin_coeff, x)
+        cost = cost(y,prediction)
+        plt.plot(iteration,cost,'ro')
+        d_theta, d_lin = derivatives(x,y,prediction)
+        new_theta = theta - learning_rate * d_theta
+        new_lin_coeff = lin_coeff - learning_rate * d_lin
+        theta = new_theta
+        lin_coeff = new_lin_coeff
+    plt.show()
+    return theta, lin_coeff
 
+results = batch_GD(x_train, y_train, 1000, 0.0001)
+print("results:",results)
 
 
 
