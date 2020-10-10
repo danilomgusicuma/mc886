@@ -14,9 +14,6 @@ from sklearn.utils import shuffle
 
 #%matplotlib inline
 
-test_dot = np.dot(np.array([[1],[2]]), np.array([[1,1,3]]))
-print('test-dot:', test_dot)
-
 df=pd.read_csv("diamonds-train.csv")
 
 #1. Normalizing the dataset features
@@ -54,29 +51,39 @@ y_train = y_train.reshape((y_train.shape[0], 1))
 y_test = y_test.reshape((y_test.shape[0], 1))
 
 #printing the shape of each resulted array:
-print("x_train.shape", x_train)
+print("x_train.shape", x_train.shape)
 print("x_test.shape", x_test.shape)
-print("y_train.shape", y_train.shape)
+print("y_train.shape", y_train)
 print("y_test.shape", y_test.shape)
 
 
 
 # TODO: Linear Regression. Implement your solution. You cannot use scikit-learn libraries.
 
-def h_theta(theta, x):
+def h_theta(theta, lin_coeff, x):
     # x is a list of features
     # theta is a list of coefficients 
     # h_theta returns the dot product of the theta and x arrays
-    return np.sum(np.multiply(theta, x))
+    return np.sum(np.multiply(theta, x)) + lin_coeff
 
-test = h_theta([1,2,3], [2,3,4])
-
-def cost(theta, x, y):
+def cost(y, prediction):
     #x is matrix with all the features data
-    aux = 0
-    for i in range(len(x)):
-        aux += (h_theta(theta, x[i]) - y[i])**2
-    return 1/(2*len(x)) * aux
+    #prediction is the resultant list of h_theta
+    sum = 0
+    for i in range(len(y)):
+        sum += (prediction[i] - y[i])**2
+    return 1/(2*len(y)) * sum
+
+def derivatives( x, y, prediction):
+    m = len(x)
+    d_theta = (-1./m)*np.dot(x.T,(prediction - y))
+    d_lin = (-1./m)*np.sum((prediction - y))
+    return d_theta, d_lin
+
+a = np.array([[1,2],[3,4],[5,6]])
+b = np.array([[1],[2],[3]])
+c = np.array([[1.1],[2.1],[3.1]])
+print("derivatives: ",cost(b, c))
 
 
 
