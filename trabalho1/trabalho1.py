@@ -2,17 +2,32 @@ import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
 import seaborn as sns
+import time
+
+import normalizeUtils as utils
+
+from sklearn import linear_model
+from sklearn.model_selection import train_test_split
+from sklearn.preprocessing import LabelEncoder
+from sklearn.preprocessing import OneHotEncoder
+from sklearn.utils import shuffle
+
 #%matplotlib inline
+
+test_dot = np.dot(np.array([[1],[2]]), np.array([[1,1,3]]))
+print('test-dot:', test_dot)
 
 df=pd.read_csv("diamonds-train.csv")
 
-def normalize(values):
+#1. Normalizing the dataset features
+def normalize(values): # values is the matrix with all the data
+    #normalizing features values to [0,10]
     rows = [ [ 0 for i in range(9) ] for j in values ]
     for i in range(len(values)):
         rows[i][0] = (values[i][0] - 0.2)/0.481
-        rows[i][1] = cutNumber(values[i][1])
-        rows[i][2] = colorNumber(values[i][2])
-        rows[i][3] = clarityNumber(values[i][3])
+        rows[i][1] = utils.cutNumber(values[i][1])
+        rows[i][2] = utils.colorNumber(values[i][2])
+        rows[i][3] = utils.clarityNumber(values[i][3])
         rows[i][4] = values[i][4]/1.074
         rows[i][5] = values[i][5]/5.89
         rows[i][6] = values[i][6]/3.18
@@ -20,69 +35,53 @@ def normalize(values):
         rows[i][8] = (values[i][8] - 43)/5.2
     return rows
 
-# TODO: Linear Regression. Implement your solution. You cannot use scikit-learn libraries.
-
-def h_theta(theta, x):
-    return np.sum(np.multiply(theta, x))
-
-test = h_theta([1,2,3], [2,3,4])
-
-def cutNumber(cut):
-    if cut == "Fair":
-        return 0
-    elif cut == "Good":
-        return 2.5
-    elif cut == "Very Good":
-        return 5
-    elif cut == "Premium":
-        return 7.5
-    elif cut == "Ideal":
-        return 10
-
-def colorNumber(color):
-    if color == "J":
-        return 0
-    elif color == "I":
-        return 5/3
-    elif color == "H":
-        return 10/3
-    elif color == "G":
-        return 5
-    elif color == "F":
-        return 20/3
-    elif color == "E":
-        return 25/3
-    elif color == "D":
-        return 10
-
-def clarityNumber(clarity):
-    if clarity == "I1":
-        return 0
-    elif clarity == "SI2":
-        return 10/7
-    elif clarity == "SI1":
-        return 20/7
-    elif clarity == "VS2":
-        return 30/7
-    elif clarity == "VS1":
-        return 40/7
-    elif clarity == "VVS2":
-        return 50/7
-    elif clarity == "VVS1":
-        return 60/7
-    elif clarity == "IF":
-        return 10
-
-def cost(theta, x, y):
-    aux = 0
-    for i in x:
-        aux += (h_theta(theta, i) - y[i])**2
-    return 1/(2*len(x)) * aux
-
+# x is the features matrix
+# y is the prices array
 x = normalize(df.values)
 y = []
 for i in df.values:
     y.append(i[9])
+
+#2. Split the dataset in train and validation
+x_train, x_test, y_train, y_test = train_test_split(x, y, test_size=1/5 )
+
+x_train = np.array(x_train)
+x_test = np.array(x_test)
+y_train = np.array(y_train)
+y_test = np.array(y_test)
+
+y_train = y_train.reshape((y_train.shape[0], 1))
+y_test = y_test.reshape((y_test.shape[0], 1))
+
+#printing the shape of each resulted array:
+print("x_train.shape", x_train)
+print("x_test.shape", x_test.shape)
+print("y_train.shape", y_train.shape)
+print("y_test.shape", y_test.shape)
+
+
+
+# TODO: Linear Regression. Implement your solution. You cannot use scikit-learn libraries.
+
+def h_theta(theta, x):
+    # x is a list of features
+    # theta is a list of coefficients 
+    # h_theta returns the dot product of the theta and x arrays
+    return np.sum(np.multiply(theta, x))
+
+test = h_theta([1,2,3], [2,3,4])
+
+def cost(theta, x, y):
+    #x is matrix with all the features data
+    aux = 0
+    for i in range(len(x)):
+        aux += (h_theta(theta, x[i]) - y[i])**2
+    return 1/(2*len(x)) * aux
+
+
+
+
+
 
 # TODO: Linear Regression. Implement your solution with sklearn.linear_model.SGDRegressor.
 # TODO: Complex model. Implement your solution. You cannot use scikit-learn libraries.
@@ -90,4 +89,3 @@ for i in df.values:
 # TODO: Gradient Descent (GD) with different learning rates. Implement your solution. You cannot use scikit-learn libraries.
 # TODO: Compare the GD-based solutions (e.g., Batch, SGD, Mini-batch) with Normal Equation. Implement your solution. You cannot use scikit-learn libraries.
 
-print(cost([0,0,0,0,0,0,0,0,0], x, y))
