@@ -53,7 +53,7 @@ y_test = y_test.reshape((y_test.shape[0], 1))
 #printing the shape of each resulted array:
 print("x_train.shape", x_train.shape)
 print("x_test.shape", x_test.shape)
-print("y_train.shape", y_train)
+print("y_train.shape", y_train.shape)
 print("y_test.shape", y_test.shape)
 
 
@@ -61,15 +61,18 @@ print("y_test.shape", y_test.shape)
 # TODO: Linear Regression. Implement your solution. You cannot use scikit-learn libraries.
 def random_array_from(x):
     #start the coefficients list randomically
-    #generate an array with the same size of the dataset x
-    init_theta = np.random.randn(len(x),1)
+    #generate an array with the size of the number of features
+    init_theta = np.random.randn(len(x[0]),1)
     return init_theta
 
 def h_theta(theta, lin_coeff, x):
     # x is a list of features
     # theta is a list of coefficients 
     # h_theta returns the dot product of the theta and x arrays
-    return np.sum(np.multiply(theta, x)) + lin_coeff
+    predictions = []
+    for x_row in x:
+        predictions.append(np.dot(theta.T, x_row)+ lin_coeff)    
+    return predictions
 
 def cost(y, prediction):
     #x is matrix with all the features data
@@ -81,8 +84,8 @@ def cost(y, prediction):
 
 def derivatives( x, y, prediction):
     m = len(x)
-    d_theta = (-1./m)*np.dot(x.T,(prediction - y))
-    d_lin = (-1./m)*np.sum((prediction - y))
+    d_theta = (-1./m)*np.dot(x.T,(y - prediction))
+    d_lin = (-1./m)*np.sum((y - prediction))
     return d_theta, d_lin
 
 a = np.array([[1,2],[3,4],[5,6]])
@@ -93,10 +96,16 @@ def batch_GD(x, y, nb_epochs, learning_rate):
     theta = random_array_from(x)
     lin_coeff = 0
     for iteration in range(nb_epochs):
+        #from the values of theta and the lin_coeff, predict the result
         prediction = h_theta(theta, lin_coeff, x)
-        cost = cost(y,prediction)
-        plt.plot(iteration,cost,'ro')
+        #calculate the cost function
+        cost_result = cost(y,prediction)
+        #plot the cost
+        plt.plot(iteration,cost_result,'ro')
+        print("iteration:", iteration, "cost:", cost_result)
+        #calculate the values for the next iteration
         d_theta, d_lin = derivatives(x,y,prediction)
+        #print("d_theta:", d_theta, "d_lin:", d_lin)
         new_theta = theta - learning_rate * d_theta
         new_lin_coeff = lin_coeff - learning_rate * d_lin
         theta = new_theta
